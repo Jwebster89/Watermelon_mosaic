@@ -8,11 +8,12 @@ READ_ID=["1","2"]
 ## ---------------------------------------------------------------------------##
 rule all:
     input:
-        # expand("data/assembly/final/{sample}.rnaviral.fasta",sample=SAMPLE),
-        # expand("data/assembly/final/{sample}.megahit.fa",sample=SAMPLE),
-        "results/mafft/rnaviralHMM.mafft.aln",
-        "results/mafft/rnaviral.mafft.aln",
-        "results/mafft/megahit.mafft.aln"
+        # "results/mafft/rnaviralHMM.mafft.aln",
+        # "results/mafft/rnaviral.mafft.aln",
+        # "results/mafft/megahit.mafft.aln"
+        expand("data/assembly/final/{sample}.rnaviral.fasta", sample=SAMPLE),
+        expand("data/assembly/final/{sample}.rnaviralhmm.fasta",sample=SAMPLE),
+        expand("data/assembly/final/{sample}.megahit.fasta",sample=SAMPLE)
 
 
 ## ---------------------------------------------------------------------------##
@@ -73,7 +74,7 @@ rule rnaHMM_spades:
         reads1="raw/trimmed/{sample}_R1.trimmed.cat.fastq.gz",
         reads2="raw/trimmed/{sample}_R2.trimmed.cat.fastq.gz"
     output:
-        "data/assembly/rnaviralHMM_spades/{sample}/contigs.fasta"
+        "data/assembly/rnaviralHMM_spades/{sample}/scaffolds.fasta"
     params:
         outdir="data/assembly/rnaviralHMM_spades/{sample}/"
     shell:"""
@@ -100,7 +101,7 @@ rule Megahit:
 rule rename:
     input:
         rnaviralspades="data/assembly/rnaviral_spades/{sample}/contigs.fasta",
-        rnaviralHMM_spades="data/assembly/rnaviralHMM_spades/{sample}/contigs.fasta",
+        rnaviralHMM_spades="data/assembly/rnaviralHMM_spades/{sample}/scaffolds.fasta",
         megahit="data/assembly/megahit/{sample}/final.contigs.fa"
     output:
         rnaviralspades="data/assembly/final/{sample}.rnaviral.fasta",
@@ -112,41 +113,41 @@ rule rename:
     cp {input.megahit} {output.megahit}
     """
 
-## ---------------------------------------------------------------------------##
-## concat refs and assemblies
-## ---------------------------------------------------------------------------##
-rule assembly_cat:
-    input:
-        expand("data/assembly/final/{sample}.rnaviralhmm.fasta",sample=SAMPLE),
-        expand("data/assembly/final/{sample}.rnaviral.fasta",sample=SAMPLE),
-        expand("data/assembly/final/{sample}.megahit.fasta",sample=SAMPLE),
-        refs="data/WMV_refs.fasta"
-    output:
-        temporary("data/assembly/rnaviralHMM.cat.fasta"),
-        temporary("data/assembly/rnaviral.cat.fasta"),
-        temporary("data/assembly/megahit.cat.fasta")
-    params:
-        input_dir="data/assembly/final/"
-    shell:"""
-    cat {params.input_dir}*.rnaviralhmm.fasta {input.refs} > {output}
-    cat {params.input_dir}*.rnaviral.fasta {input.refs} > {output}
-    cat {params.input_dir}*.megahit.fasta {input.refs} > {output}
-    """
+# ## ---------------------------------------------------------------------------##
+# ## concat refs and assemblies
+# ## ---------------------------------------------------------------------------##
+# rule assembly_cat:
+#     input:
+#         expand("data/assembly/final/{sample}.rnaviralhmm.fasta",sample=SAMPLE),
+#         expand("data/assembly/final/{sample}.rnaviral.fasta",sample=SAMPLE),
+#         expand("data/assembly/final/{sample}.megahit.fasta",sample=SAMPLE),
+#         refs="data/WMV_refs.fasta"
+#     output:
+#         temporary("data/assembly/rnaviralHMM.cat.fasta"),
+#         temporary("data/assembly/rnaviral.cat.fasta"),
+#         temporary("data/assembly/megahit.cat.fasta")
+#     params:
+#         input_dir="data/assembly/final/"
+#     shell:"""
+#     cat {params.input_dir}*.rnaviralhmm.fasta {input.refs} > {output}
+#     cat {params.input_dir}*.rnaviral.fasta {input.refs} > {output}
+#     cat {params.input_dir}*.megahit.fasta {input.refs} > {output}
+#     """
 
-## ---------------------------------------------------------------------------##
-## mafft spades HMM
-## ---------------------------------------------------------------------------##
-rule mafft:
-    input:
-        hmm="data/assembly/rnaviralHMM.cat.fasta",
-        spades="data/assembly/rnaviral.cat.fasta",
-        megahit="data/assembly/megahit.cat.fasta"
-    output:
-        hmm="results/mafft/rnaviralHMM.mafft.aln",
-        spades="results/mafft/rnaviral.mafft.aln",
-        megahit="results/mafft/megahit.mafft.aln"
-    shell:"""
-    mafft {input.hmm} > {output.hmm}
-    mafft {input.spades} > {output.spades}
-    mafft {input.megahit} > {output.megahit}
-    """
+# ## ---------------------------------------------------------------------------##
+# ## mafft spades HMM
+# ## ---------------------------------------------------------------------------##
+# rule mafft:
+#     input:
+#         hmm="data/assembly/rnaviralHMM.cat.fasta",
+#         spades="data/assembly/rnaviral.cat.fasta",
+#         megahit="data/assembly/megahit.cat.fasta"
+#     output:
+#         hmm="results/mafft/rnaviralHMM.mafft.aln",
+#         spades="results/mafft/rnaviral.mafft.aln",
+#         megahit="results/mafft/megahit.mafft.aln"
+#     shell:"""
+#     mafft {input.hmm} > {output.hmm}
+#     mafft {input.spades} > {output.spades}
+#     mafft {input.megahit} > {output.megahit}
+#     """
