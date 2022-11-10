@@ -11,9 +11,10 @@ rule all:
         # "results/mafft/rnaviralHMM.mafft.aln",
         # "results/mafft/rnaviral.mafft.aln",
         # "results/mafft/megahit.mafft.aln"
-        expand("data/assembly/final/{sample}.rnaviral.fasta", sample=SAMPLE),
-        expand("data/assembly/final/{sample}.rnaviralhmm.fasta",sample=SAMPLE),
-        expand("data/assembly/final/{sample}.megahit.fasta",sample=SAMPLE)
+        # expand("data/assembly/final/{sample}.rnaviral.fasta", sample=SAMPLE),
+        # expand("data/assembly/final/{sample}.rnaviralhmm.fasta",sample=SAMPLE)
+        # expand("data/assembly/final/{sample}.megahit.fasta",sample=SAMPLE)
+        expand("data/assembly/rnaviralHMM_spades/{sample}/scaffolds.fasta",sample=SAMPLE)
 
 
 ## ---------------------------------------------------------------------------##
